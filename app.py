@@ -24,31 +24,16 @@ else:
     def speak_text(text):
         pass  # no-op
 
-# --------- Available Models ---------
+# --------- Available Models (Groq-supported only) ---------
 AVAILABLE_MODELS = {
-    "Mistral 7B (free)": "mistralai/mistral-7b-instruct:free",
-    "Mistral 24B Small (free)": "mistralai/mistral-small-24b-instruct-2501:free",
-    "Gemma 7B (free)": "google/gemma-7b-it:free",
-    "Gemma 12B (free)": "google/gemma-3-12b-it:free",
-    "Gemma 27B (free)": "google/gemma-3-27b-it:free",
-    "DeepSeek R1 (free)": "deepseek/deepseek-r1:free",
-    "DeepSeek V3 (free)": "deepseek/deepseek-v3-0324:free",
-    "DeepSeek R1T2 Chimera (free)": "tngtech/deepseek-r1t2-chimera:free",
-    "Meta Llama 3.3 70B (free)": "meta-llama/llama-3.3-70b-instruct:free",
-    "Meta Llama 4 Maverick (free)": "meta-llama/llama-4-maverick:free",
-    "Meta Llama 4 Scout (free)": "meta-llama/llama-4-scout:free",
-    "Qwen3 14B (free)": "qwen/qwen3-14b:free",
-    "Qwen3 30B (free)": "qwen/qwen3-30b-a3b:free",
-    "Qwen2.5 VL 32B Instruct (free)": "qwen/qwen2.5-vl-32b-instruct:free",
-    "GLM 4 32B (free)": "thudm/glm-4-32b:free",
-    "Reka Flash 3 (free)": "rekaai/reka-flash-3:free",
-    "Moonshot Kimi Dev 72B (free)": "moonshotai/kimi-dev-72b:free"
+    "LLaMA 3 8B": "llama3-8b-8192",
+    "LLaMA 3 70B": "llama3-70b-8192"
 }
 
-# --------- Stream Response from OpenRouter ---------
-def stream_openrouter_response(prompt, model_slug):
+# --------- Stream Response from Groq ---------
+def stream_groq_response(prompt, model_slug):
     headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json"
     }
     data = {
@@ -60,7 +45,7 @@ def stream_openrouter_response(prompt, model_slug):
         "stream": True
     }
     try:
-        response = requests.post(OPENROUTER_URL, headers=headers, json=data, stream=True, timeout=120)
+        response = requests.post(GROQ_URL, headers=headers, json=data, stream=True, timeout=120)
         response.raise_for_status()
         full_response = ""
         for chunk in response.iter_lines():
@@ -120,7 +105,7 @@ if "user_input" not in st.session_state:
     st.session_state.user_input = ""
 
 # --------- Display Past Messages ---------
-st.markdown("## ⚡ Sparky 2.0 - Your Free AI Sidekick")
+st.markdown("## ⚡ Sparky 2.0 - Your Free AI Sidekick (Groq Edition)")
 for role, message in st.session_state.chat_history:
     with st.chat_message(role):
         st.markdown(message)
@@ -139,7 +124,7 @@ if user_input:
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         full_response = ""
-        for chunk in stream_openrouter_response(user_input, model_slug):
+        for chunk in stream_groq_response(user_input, model_slug):
             full_response += chunk
             message_placeholder.markdown(full_response + "▌")
         message_placeholder.markdown(full_response)
