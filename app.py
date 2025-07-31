@@ -24,16 +24,16 @@ else:
     def speak_text(text):
         pass  # no-op
 
-# --------- Available Models (Groq-supported only) ---------
+# --------- Available Models ---------
 AVAILABLE_MODELS = {
     "LLaMA 3 8B": "llama3-8b-8192",
     "LLaMA 3 70B": "llama3-70b-8192"
 }
 
-# --------- Stream Response from Groq ---------
-def stream_groq_response(prompt, model_slug):
+# --------- Stream Response from OpenRouter ---------
+def stream_openrouter_response(prompt, model_slug):
     headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Authorization": f"Bearer {GROQ_API_KEY}}",
         "Content-Type": "application/json"
     }
     data = {
@@ -105,7 +105,7 @@ if "user_input" not in st.session_state:
     st.session_state.user_input = ""
 
 # --------- Display Past Messages ---------
-st.markdown("## ⚡ Sparky 2.0 - Your Free AI Sidekick (Groq Edition)")
+st.markdown("## ⚡ Sparky 2.0 - Your Free AI Sidekick")
 for role, message in st.session_state.chat_history:
     with st.chat_message(role):
         st.markdown(message)
@@ -124,7 +124,7 @@ if user_input:
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         full_response = ""
-        for chunk in stream_groq_response(user_input, model_slug):
+        for chunk in stream_openrouter_response(user_input, model_slug):
             full_response += chunk
             message_placeholder.markdown(full_response + "▌")
         message_placeholder.markdown(full_response)
