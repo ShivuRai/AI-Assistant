@@ -2,7 +2,6 @@ import streamlit as st
 import requests
 import json
 import threading
-import speech_recognition as sr
 import os
 from dotenv import load_dotenv
 
@@ -91,30 +90,16 @@ def stream_openrouter_response(prompt, model_slug):
     except Exception as e:
         yield f"\n[API Error: {e}]"
 
-# --------- Microphone Listening ---------
-def listen_from_mic():
-    recognizer = sr.Recognizer()
-    with sr.Microphone() as source:
-        st.toast("🎙️ Listening...")
-        audio = recognizer.listen(source, timeout=5)
-    try:
-        text = recognizer.recognize_google(audio)
-        st.toast(f"🗣️ You said: {text}")
-        return text
-    except sr.UnknownValueError:
-        st.error("Couldn't understand audio.")
-    except sr.RequestError:
-        st.error("Speech API is down.")
-    return ""
-
 # --------- Streamlit App Setup ---------
 st.set_page_config(page_title="Sparky 2.0", page_icon="⚡", layout="centered")
 
 # Load CSS & JS
-with open("styles.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-with open("script.js") as f:
-    st.markdown(f"<script>{f.read()}</script>", unsafe_allow_html=True)
+if os.path.exists("styles.css"):
+    with open("styles.css") as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+if os.path.exists("script.js"):
+    with open("script.js") as f:
+        st.markdown(f"<script>{f.read()}</script>", unsafe_allow_html=True)
 
 # --------- Sidebar ---------
 st.sidebar.markdown("### ⚙️ Settings")
@@ -144,12 +129,8 @@ for role, message in st.session_state.chat_history:
 
 # --------- Input Area ---------
 user_text = st.chat_input("Type your message...")
-with st.container():
-    mic_clicked = st.button("🎙️", key="mic_btn", use_container_width=False)
 
-if mic_clicked:
-    st.session_state.user_input = listen_from_mic()
-elif user_text:
+if user_text:
     st.session_state.user_input = user_text
 
 user_input = st.session_state.user_input
