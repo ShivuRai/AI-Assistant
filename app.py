@@ -3,28 +3,22 @@ import requests
 import json
 import threading
 import os
-from dotenv import load_dotenv
 
-# --------- Load API Key Securely ---------
-load_dotenv(".env")
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+# --------- Load API Key Securely from Streamlit Secrets ---------
+OPENROUTER_API_KEY = st.secrets["openrouter_key"]
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
-USE_TTS = os.getenv("USE_TTS", "True") == "True"
+USE_TTS = True  # You can still control this with secrets if needed
 
 # --------- Voice Engine Setup (conditionally) ---------
-if USE_TTS:
-    import pyttsx3
-    engine = pyttsx3.init()
-    engine.setProperty('rate', 170)
+import pyttsx3
+engine = pyttsx3.init()
+engine.setProperty('rate', 170)
 
-    def speak_text(text):
-        def run():
-            engine.say(text)
-            engine.runAndWait()
-        threading.Thread(target=run).start()
-else:
-    def speak_text(text):
-        pass  # no-op
+def speak_text(text):
+    def run():
+        engine.say(text)
+        engine.runAndWait()
+    threading.Thread(target=run).start()
 
 # --------- Available Models ---------
 AVAILABLE_MODELS = {
