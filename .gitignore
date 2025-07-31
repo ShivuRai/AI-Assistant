@@ -1,0 +1,10 @@
+# Don't track your real API keys
+.env
+skey
+
+# Don't track Python cache files
+__pycache__/
+*.pyc
+
+# Don't track Streamlit's cache and log files
+.streamlit/

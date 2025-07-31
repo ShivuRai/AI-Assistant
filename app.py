@@ -4,11 +4,15 @@ import json
 import pyttsx3
 import threading
 import speech_recognition as sr
+import os
+from dotenv import load_dotenv
 
-# --------- Configs ---------
-OPENROUTER_API_KEY = "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"
+# --------- Load API Key Securely ---------
+load_dotenv()
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
+# --------- Available Models ---------
 AVAILABLE_MODELS = {
     "Mistral 7B (free)": "mistralai/mistral-7b-instruct:free",
     "Mistral 24B Small (free)": "mistralai/mistral-small-24b-instruct-2501:free",
@@ -29,7 +33,6 @@ AVAILABLE_MODELS = {
     "Moonshot Kimi Dev 72B (free)": "moonshotai/kimi-dev-72b:free"
 }
 
-
 # --------- Voice Engine ---------
 engine = pyttsx3.init()
 engine.setProperty('rate', 170)
@@ -40,7 +43,7 @@ def speak_text(text):
         engine.runAndWait()
     threading.Thread(target=run).start()
 
-# --------- Streaming OpenRouter Response ---------
+# --------- Stream Response from OpenRouter ---------
 def stream_openrouter_response(prompt, model_slug):
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
@@ -55,18 +58,12 @@ def stream_openrouter_response(prompt, model_slug):
         "stream": True
     }
     try:
-        response = requests.post(
-            OPENROUTER_URL,
-            headers=headers,
-            json=data,
-            stream=True,
-            timeout=120
-        )
+        response = requests.post(OPENROUTER_URL, headers=headers, json=data, stream=True, timeout=120)
         response.raise_for_status()
         full_response = ""
         for chunk in response.iter_lines():
             if not chunk:
-                continue  # skip empty lines
+                continue
             try:
                 decoded = chunk.decode("utf-8").strip()
                 if decoded.startswith('data:'):
@@ -80,7 +77,7 @@ def stream_openrouter_response(prompt, model_slug):
                     full_response += token
                     yield token
             except json.JSONDecodeError:
-                continue  # Don't show parsing errors to user, just skip
+                continue
             except Exception as e:
                 yield f"\n[API Error: {e}]"
         yield ""
@@ -89,7 +86,7 @@ def stream_openrouter_response(prompt, model_slug):
     except Exception as e:
         yield f"\n[API Error: {e}]"
 
-# --------- Voice Input ---------
+# --------- Microphone Listening ---------
 def listen_from_mic():
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
@@ -105,10 +102,10 @@ def listen_from_mic():
         st.error("Speech API is down.")
     return ""
 
-# --------- Page Setup ---------
+# --------- Streamlit App Setup ---------
 st.set_page_config(page_title="Sparky 2.0", page_icon="⚡", layout="centered")
 
-# Load External CSS & JS
+# Load CSS & JS
 with open("styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 with open("script.js") as f:
@@ -118,31 +115,32 @@ with open("script.js") as f:
 st.sidebar.markdown("### ⚙️ Settings")
 model_label = st.sidebar.selectbox("Choose a model", list(AVAILABLE_MODELS.keys()), index=0)
 model_slug = AVAILABLE_MODELS[model_label]
-voice_default = st.session_state.get("voice_toggle", True)
-st.session_state.voice_toggle = st.sidebar.toggle("🔊 Voice Output", value=voice_default)
+
+if "voice_toggle" not in st.session_state:
+    st.session_state.voice_toggle = True
+st.session_state.voice_toggle = st.sidebar.toggle("🔊 Voice Output", value=st.session_state.voice_toggle)
 
 if st.sidebar.button("🧹 Clear Conversation"):
     st.session_state.chat_history = []
     st.session_state.user_input = ""
     st.rerun()
 
-# --------- Session State ---------
+# --------- Initialize Session ---------
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 if "user_input" not in st.session_state:
     st.session_state.user_input = ""
 
-# --------- Display Chat ---------
+# --------- Display Past Messages ---------
 st.markdown("## ⚡ Sparky 2.0 - Your Free AI Sidekick")
 for role, message in st.session_state.chat_history:
     with st.chat_message(role):
         st.markdown(message)
 
-# --------- Input Handling (Mic + Send on Same Bar) ---------
-user_text = st.chat_input("Type your message...")  # Stuck to bottom
+# --------- Input Area ---------
+user_text = st.chat_input("Type your message...")  # Chat bar
 
 with st.container():
-    st.markdown('<div class="mic-float-container"></div>', unsafe_allow_html=True)
     mic_clicked = st.button("🎙️", key="mic_btn", use_container_width=False)
 
 if mic_clicked:
@@ -152,7 +150,7 @@ elif user_text:
 
 user_input = st.session_state.user_input
 
-# --------- Process User Input ---------
+# --------- Process Input ---------
 if user_input:
     st.session_state.chat_history.append(("user", user_input))
     with st.chat_message("assistant"):
