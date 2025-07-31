@@ -3,11 +3,9 @@ import requests
 import json
 import threading
 import os
-from dotenv import load_dotenv
 
-# --------- Load API Key Securely ---------
-load_dotenv(".env")
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+# --------- Load API Key Securely from Streamlit secrets ---------
+OPENROUTER_API_KEY = st.secrets["openrouter_key"]
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 USE_TTS = os.getenv("USE_TTS", "True") == "True"
 
