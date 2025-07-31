@@ -1,16 +1,31 @@
 import streamlit as st
 import requests
 import json
-import pyttsx3
 import threading
 import speech_recognition as sr
 import os
 from dotenv import load_dotenv
 
 # --------- Load API Key Securely ---------
-load_dotenv()
+load_dotenv(".env")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+USE_TTS = os.getenv("USE_TTS", "True") == "True"
+
+# --------- Voice Engine Setup (conditionally) ---------
+if USE_TTS:
+    import pyttsx3
+    engine = pyttsx3.init()
+    engine.setProperty('rate', 170)
+
+    def speak_text(text):
+        def run():
+            engine.say(text)
+            engine.runAndWait()
+        threading.Thread(target=run).start()
+else:
+    def speak_text(text):
+        pass  # no-op
 
 # --------- Available Models ---------
 AVAILABLE_MODELS = {
@@ -32,16 +47,6 @@ AVAILABLE_MODELS = {
     "Reka Flash 3 (free)": "rekaai/reka-flash-3:free",
     "Moonshot Kimi Dev 72B (free)": "moonshotai/kimi-dev-72b:free"
 }
-
-# --------- Voice Engine ---------
-engine = pyttsx3.init()
-engine.setProperty('rate', 170)
-
-def speak_text(text):
-    def run():
-        engine.say(text)
-        engine.runAndWait()
-    threading.Thread(target=run).start()
 
 # --------- Stream Response from OpenRouter ---------
 def stream_openrouter_response(prompt, model_slug):
@@ -138,8 +143,7 @@ for role, message in st.session_state.chat_history:
         st.markdown(message)
 
 # --------- Input Area ---------
-user_text = st.chat_input("Type your message...")  # Chat bar
-
+user_text = st.chat_input("Type your message...")
 with st.container():
     mic_clicked = st.button("🎙️", key="mic_btn", use_container_width=False)
 
