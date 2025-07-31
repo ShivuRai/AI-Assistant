@@ -33,7 +33,7 @@ AVAILABLE_MODELS = {
 # --------- Stream Response from OpenRouter ---------
 def stream_openrouter_response(prompt, model_slug):
     headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}}",
+        "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json"
     }
     data = {
