@@ -3,3 +3,4 @@ requests
 openai
 pyttsx3 ; sys_platform != 'linux'
 SpeechRecognition ; sys_platform != 'linux'
+python-dotenv
