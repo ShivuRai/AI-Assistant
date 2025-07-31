@@ -1,5 +1,5 @@
 streamlit
 requests
-pyttsx3
-SpeechRecognition
-pyaudio
+openai
+pyttsx3 ; sys_platform != 'linux'
+SpeechRecognition ; sys_platform != 'linux'
