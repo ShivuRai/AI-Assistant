@@ -5,8 +5,8 @@ import threading
 import os
 
 # --------- Load API Key Securely from Streamlit secrets ---------
-OPENROUTER_API_KEY = st.secrets["openrouter_key"]
-OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+GROQ_API_KEY = st.secrets["groq_key"]
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 USE_TTS = os.getenv("USE_TTS", "True") == "True"
 
 # --------- Voice Engine Setup (conditionally) ---------
