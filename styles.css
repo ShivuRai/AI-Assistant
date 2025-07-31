@@ -1,0 +1,94 @@
+/* === Global Layout === */
+.main {
+    background-color: #f8f9fa;
+}
+
+section[data-testid="stSidebar"] {
+    background-color: #f1f3f4;
+    border-right: 1px solid #ddd;
+}
+
+/* === Chat Messages === */
+.stChatMessage {
+    border-radius: 16px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.stChatMessage.user {
+    background-color: #fbefff;
+    text-align: right;
+}
+
+.stChatMessage.assistant {
+    background-color: #f1f4ff;
+}
+
+/* Optional Avatar or Emoji in Chat */
+.stChatMessage > div:first-child::before {
+    content: attr(data-role-icon);
+    font-size: 20px;
+    margin-right: 8px;
+}
+
+/* === Chat Input Section === */
+
+/* Chat Input Container */
+div[data-testid="chatInput"],
+.stChatInputContainer,
+.css-1kyxreq {
+    position: fixed !important;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    background: #fff;
+    z-index: 999;
+    padding: 10px 16px;
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Input + Button Style */
+button[kind="primary"] {
+    border-radius: 8px;
+    margin-left: 8px;
+}
+
+/* === Typography === */
+.element-container .stMarkdown {
+    font-size: 1.05rem;
+}
+
+/* --- Style floating mic button like the send button --- */
+.stButton > button#mic_btn, button[data-testid="baseButton"][id="mic_btn"] {
+    position: fixed !important;
+    right: 30px;
+    bottom: 18px;
+    z-index: 1000;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    box-shadow: 0 2px 8px rgba(30, 80, 210, 0.07);
+    background: #256ee4;
+    border: none;
+    color: #fff !important;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: box-shadow 0.15s, background 0.18s;
+    padding: 0;
+}
+.stButton > button#mic_btn:hover, button[data-testid="baseButton"][id="mic_btn"]:hover {
+    background: #1e53ae;
+    box-shadow: 0 6px 20px rgba(30,80,210,0.12);
+    color: #f8faff !important;
+}
+.stButton > button#mic_btn svg, button[data-testid="baseButton"][id="mic_btn"] svg {
+    display: inline-block;
+    vertical-align: middle;
+    fill: currentColor !important;
+}
